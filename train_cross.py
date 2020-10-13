@@ -121,13 +121,9 @@ def mixup_data(x, y, x_help, use_cuda=True):
     for i in range(x.size()[0]):
         lams[i] = np.abs(lams[i]) / np.sum(np.abs(lams[i]))
         if args.klam > 1:
-            while lams[i].max() > args.upper:     # upper bounds a single lambda
+            while lams[i].max() > args.upper or (lams[i][0] + lams[i][1]) < args.dom:     # upper bounds a single lambda + lower bounds the sum of lambdas for private samples
                 lams[i] = np.random.normal(0, 1, size=(1, args.klam))
                 lams[i] = np.abs(lams[i]) / np.sum(np.abs(lams[i]))
-            if args.dom > 0:
-                while (lams[i][0] + lams[i][1]) < args.dom:
-                    lams[i] = np.random.normal(0, 1, size=(1, args.klam))
-                    lams[i] = np.abs(lams[i]) / np.sum(np.abs(lams[i]))
 
     lams = torch.from_numpy(lams).float().to(device)
 
