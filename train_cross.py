@@ -154,6 +154,7 @@ def mixup_data(x, y, x_help, use_cuda=True):
 
 def generate_sample(trainloader, inputs_help):
     assert len(trainloader) == 1        # Load all training data once
+    inputs_help = inputs_help[torch.randperm(inputs_help.size()[0])]    # Important! Permute the public dataset as a quick fix to issue #2  TODO: improve this
     for _, (inputs, targets) in enumerate(trainloader):
         if use_cuda:
             inputs, targets = inputs.cuda(), targets.cuda()
@@ -317,7 +318,8 @@ def main():
                                               batch_size=len(trainset),
                                               shuffle=True,
                                               num_workers=8)
-
+    
+    # TODO: a more memory-efficient implementation: index offline and only load public samples for encryption per epoch
     trainloader_help = torch.utils.data.DataLoader(trainset_help,
                                                    batch_size=len(
                                                        trainset_help),
